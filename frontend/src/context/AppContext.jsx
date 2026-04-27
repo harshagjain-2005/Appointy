@@ -6,7 +6,7 @@ export const AppContext = createContext()
 
 const AppContextProvider = (props) => {
     const currencySymbol = '₹'
-    const backendUrl = import.meta.env.VITE_BACKEND_URL
+    const backendUrl = "http://localhost:5000"
 
     const [doctors, setDoctors] = useState([])
     const [token, setToken] = useState(localStorage.getItem('token') || '')
@@ -28,11 +28,11 @@ const AppContextProvider = (props) => {
 
     const loadUserProfileData = async () => {
         try {
-            const { data } = await axios.get(backendUrl + '/api/user/get-profile', {
+            const { data } = await axios.post(backendUrl + '/api/user/get-profile', {}, {
                 headers: { token }
             })
 
-            if (data.success) {
+            if (data.success && data.userData) {
                 const safeUserData = {
                     ...data.userData,
                     address: data.userData.address || { line1: '', line2: '' },
@@ -41,7 +41,7 @@ const AppContextProvider = (props) => {
                 }
                 setUserData(safeUserData)
             } else {
-                toast.error(data.message)
+                toast.error(data.message || 'Unable to load profile data')
             }
         } catch (error) {
             console.log(error)
